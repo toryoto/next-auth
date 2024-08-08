@@ -8,9 +8,9 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === '/') {
     const supabase = createClient()
 
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    if (session) {
+    if (user) {
       // ログイン済みの場合、ダッシュボードにリダイレクト
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
