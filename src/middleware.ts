@@ -1,8 +1,22 @@
-import { type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
+import { createClient } from './utils/supabase/server'
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  const res = await updateSession(request)
+
+  if (request.nextUrl.pathname === '/') {
+    const supabase = createClient()
+
+    const { data: { session } } = await supabase.auth.getSession()
+
+    if (session) {
+      // ログイン済みの場合、ダッシュボードにリダイレクト
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  return res
 }
 
 export const config = {
