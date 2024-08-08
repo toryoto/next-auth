@@ -6,7 +6,7 @@ import { Session } from '@supabase/supabase-js'
 import { createClient } from '@/utils/supabase/client'
 import SignOutButton from './SignOutButton'
 
-export default function Navbar({ initialSession }: { initialSession: Session | null }) {
+export default function Navbar({ initialSession }: { initialSession: any }) {
   const [session, setSession] = useState<Session | null>(initialSession)
   const supabase = createClient()
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'  // Adjust the import path as needed
+import { createClient } from '@/utils/supabase/client'
 
 export default function SignInForm() {
   const [email, setEmail] = useState('')
@@ -10,18 +10,21 @@ export default function SignInForm() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const supabase = createClient()
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
 
-    const supabase = createClient()  // Create the client inside the function
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
       if (error) throw error
-      router.push('/dashboard')
+
+      router.push('/auth/callback?signInSuccess=true')
     } catch (error) {
       setError('Invalid email or password')
     } finally {
