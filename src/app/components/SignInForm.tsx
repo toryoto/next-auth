@@ -18,13 +18,18 @@ export default function SignInForm() {
     setIsLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       if (error) throw error
 
-      router.push('/auth/callback?signInSuccess=true')
+      if (data.session) {
+        router.push('/dashboard')
+      } else {
+        console.error('Session not established after sign in')
+        setError('An unexpected error occurred. Please try again.')
+      }
     } catch (error) {
       setError('Invalid email or password')
     } finally {
