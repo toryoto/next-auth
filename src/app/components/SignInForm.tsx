@@ -18,15 +18,38 @@ export default function SignInForm() {
     setIsLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       if (error) throw error
 
-      router.push('/auth/callback?signInSuccess=true')
+      if (data.session) {
+        router.push('/dashboard')
+      } else {
+        console.error('Session not established after sign in')
+        setError('An unexpected error occurred. Please try again.')
+      }
     } catch (error) {
       setError('Invalid email or password')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGitHubLogin = async () => {
+    setIsLoading(true)
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      if (error) throw error
+    } catch (error) {
+      console.error('GitHub login error:', error)
+      alert('Failed to login with GitHub')
     } finally {
       setIsLoading(false)
     }
@@ -69,6 +92,9 @@ export default function SignInForm() {
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
       >
         {isLoading ? 'Signing In...' : 'Sign In'}
+      </button>
+      <button onClick={handleGitHubLogin} disabled={isLoading}>
+        {isLoading ? 'Loading...' : 'Login with GitHub'}
       </button>
     </form>
   )

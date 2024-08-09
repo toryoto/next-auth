@@ -32,7 +32,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // 認証不要のパスのリストを定義
-  const publicPaths = ['/login', '/signin', '/signup', '/forgot-password']
+  const publicPaths = [ '' ,'/login', '/signin', '/signup', '/forgot-password']
   
   if (!user && !publicPaths.some(path => request.nextUrl.pathname.startsWith(path))) {
     const url = request.nextUrl.clone()

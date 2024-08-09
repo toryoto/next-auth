@@ -4,20 +4,21 @@ import { createClient } from '@/utils/supabase/server'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const signUpSuccess = requestUrl.searchParams.get('signUpSuccess')
-  const signInSuccess = requestUrl.searchParams.get('signInSuccess')
 
+  if (!code) {
+    return NextResponse.redirect(`${requestUrl.origin}/login`)
+  }
 
   const supabase = createClient()
 
-  if (code) {
-    await supabase.auth.exchangeCodeForSession(code)
-  }
+  try {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) throw error
 
-  if (signUpSuccess || signInSuccess) {
-    console.log(1111);
+    // Successfully exchanged code for session
     return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+  } catch (error) {
+    console.error('Error exchanging code for session:', error)
+    return NextResponse.redirect(`${requestUrl.origin}/login?error=AuthenticationFailed`)
   }
-
-  return NextResponse.redirect(`${requestUrl.origin}/login?error=AuthenticationFailed`)
 }
